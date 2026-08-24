@@ -1,12 +1,12 @@
 import torch
-from model import MyNeuralNet
-from data import get_dataloaders
-from utils import show_predictions, evaluate
+from models.model import MyNeuralNet
+from datasets.data_fashion import get_dataloaders
+from utils.utils_fashion import show_predictions, evaluate
 
 def main():
-    print("--- CIFAR-10 Inference Script ---")
+    print("--- Fashion-MNIST Inference Script ---")
     
-    model_path = "cifar10_model_1.5.pth"
+    model_path = "../models/fashion_mnist_model.pth"
         
     device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
     print(f"Using device: {device}")
@@ -21,7 +21,7 @@ def main():
     model.to(device)
     print("Model successfully loaded and locked into evaluation mode.")
     
-    print("\nLoading CIFAR-10 test data...")
+    print("\nLoading Fashion-MNIST test data...")
     _, test_loader = get_dataloaders(batch_size=256)
     
     print("Running full evaluation on 10,000 test images (This might take a second)...")

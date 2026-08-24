@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from data import get_dataloaders
-from model import MyNeuralNet
-from utils import evaluate
+from datasets.data import get_dataloaders
+from models.model import MyNeuralNet
+from utils.utils import evaluate
 
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
@@ -89,13 +89,13 @@ def main():
 
     print("\nSaving the model parameters...")
     if isinstance(model, nn.DataParallel):
-        torch.save(model.module.state_dict(), "cifar10_model.pth")
+        torch.save(model.module.state_dict(), "../models/cifar10_model.pth")
     else:
-        torch.save(model.state_dict(), "cifar10_model.pth")
-    print("Model saved to 'cifar10_model.pth'!")
+        torch.save(model.state_dict(), "../models/cifar10_model.pth")
+    print("Model saved to '../models/cifar10_model.pth'!")
 
     print("\nGenerating predictions visualization...")
-    from utils import show_predictions
+    from utils.utils import show_predictions
     show_predictions(model, test_loader, device)
 
 if __name__ == "__main__":
