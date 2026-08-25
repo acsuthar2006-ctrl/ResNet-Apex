@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import os
 from sklearn.metrics import classification_report
 from models.model import MyNeuralNet
 
@@ -12,13 +13,17 @@ def print_model_metrics(dataset_type="cifar10"):
     # Select which dataset/model to evaluate based on the argument
     if dataset_type == "cifar10":
         from datasets.data import get_dataloaders
-        model_path = "../models/cifar10_model_long_run.pth"
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(script_dir, "..", "models", "cifar10_model_long_run.pth")
+        in_channels = 3
         classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 
                    'dog', 'frog', 'horse', 'ship', 'truck']
         print("--- Evaluating CIFAR-10 Model ---")
     elif dataset_type == "fashion":
         from datasets.data_fashion import get_dataloaders
-        model_path = "../models/fashion_mnist_model.pth"
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(script_dir, "..", "models", "fashionmnist_model.pth")
+        in_channels = 1
         classes = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 
                    'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
         print("--- Evaluating Fashion-MNIST Model ---")
@@ -31,7 +36,7 @@ def print_model_metrics(dataset_type="cifar10"):
     
     # Initialize & Load Model
     print(f"Loading weights from {model_path}...")
-    model = MyNeuralNet(num_classes=10)
+    model = MyNeuralNet(in_channels=in_channels, num_classes=10)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     model.eval()

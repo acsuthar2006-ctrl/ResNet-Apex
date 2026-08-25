@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import os
 from datasets.data import get_dataloaders
 from models.model import MyNeuralNet
 from utils.utils import evaluate
@@ -88,11 +89,13 @@ def main():
     print(f"Test Acc:  {test_acc * 100:.2f}%")
 
     print("\nSaving the model parameters...")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_save_path = os.path.join(script_dir, "..", "models", "cifar10_model.pth")
     if isinstance(model, nn.DataParallel):
-        torch.save(model.module.state_dict(), "../models/cifar10_model.pth")
+        torch.save(model.module.state_dict(), model_save_path)
     else:
-        torch.save(model.state_dict(), "../models/cifar10_model.pth")
-    print("Model saved to '../models/cifar10_model.pth'!")
+        torch.save(model.state_dict(), model_save_path)
+    print(f"Model saved to '{model_save_path}'!")
 
     print("\nGenerating predictions visualization...")
     from utils.utils import show_predictions
