@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Shot YOLO Clothing Detection</title>
+    <meta name="description" content="AI-powered clothing detector using YOLOv8 and OpenAI CLIP.">
+    
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="container">
+        <header>
+            <h1>Clothing <span>Detector</span></h1>
+            <p>Powered by YOLOv8 + CLIP</p>
+        </header>
+
+        <div class="glass-panel">
+            <div id="drop-zone" class="drop-zone">
+                <div class="drop-zone-content">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <h3>Drag & Drop Image Here</h3>
+                    <p>or click to browse files</p>
+                </div>
+                <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp" hidden>
+                <div id="image-preview" class="hidden">
+                    <img id="preview-img" src="" alt="Preview">
+                </div>
+            </div>
+
+            <div id="results-panel" class="results-panel hidden">
+                <h2>Analysis Results</h2>
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>AI is analyzing the image...</p>
+                </div>
+                <div id="tally-container" class="tally-container">
+                    <!-- Results injected via JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
