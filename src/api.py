@@ -4,8 +4,11 @@ import numpy as np
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-# pyrefly: ignore [missing-import]
-from src.pipeline import ClothingPipeline
+try:
+    # pyrefly: ignore [missing-import]
+    from pipeline import ClothingPipeline
+except ModuleNotFoundError:
+    from pipeline import ClothingPipeline
 
 app = FastAPI(title="Clothing Detection API")
 
@@ -42,3 +45,8 @@ frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fronten
 # Create the frontend directory if it doesn't exist so mounting doesn't crash on startup
 os.makedirs(frontend_dir, exist_ok=True)
 app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+
+if __name__ == "__main__":
+    import uvicorn
+    # When running 'python src/api.py', the module is just 'api'
+    uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=True)

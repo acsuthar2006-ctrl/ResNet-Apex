@@ -19,19 +19,3 @@ class ClothingClassifier(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-if __name__ == "__main__":
-    # Let's test if the model builds correctly. 
-    # Assume we will have 5 clothing classes (e.g., Shirt, Pants, Dress, Shoes, Hat)
-    print("Building model...")
-    test_model = ClothingClassifier(num_classes=5)
-    
-    # Create a fake, random image to test the network
-    # Format: [Batch Size, Color Channels (RGB), Height, Width]
-    # Note: 224x224 is the standard required input size for ResNet
-    dummy_image = torch.randn(1, 3, 224, 224)
-    
-    print("Passing fake image through the model...")
-    output = test_model(dummy_image)
-    
-    print(f"Success! Output shape is: {output.shape}") 
-    # We expect [1, 5] (1 image, 5 prediction scores)

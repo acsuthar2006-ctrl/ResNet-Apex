@@ -62,6 +62,8 @@ models/
 *.npy
 *.npz
 *.TFRecord
+*.png
+*.jpg
 data/
 datasets/
 
