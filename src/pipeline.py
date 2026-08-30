@@ -4,21 +4,61 @@ import base64
 import json
 import re
 import requests
+import os
+from dotenv import load_dotenv
 from PIL import Image
+from ultralytics import YOLO
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ==========================================
-# CONFIGURATION
+# CONFIGURATION (Loaded from .env)
 # ==========================================
-# If you are using Ollama, keep this as is.
-# If you are using LM Studio, change port to 1234
-API_URL = "http://localhost:1234/v1/chat/completions"
-# Set your model name exactly as it appears in Ollama/LM Studio
-MODEL_NAME = "Qwen3.5 9B" # e.g. "llava", "qwen2.5-vl", etc.
+API_URL = os.environ.get("VLM_API_URL", "http://localhost:1234/v1/chat/completions")
+MODEL_NAME = os.environ.get("VLM_MODEL_NAME", "Qwen3.5 9B")
 # ==========================================
 
 class ClothingPipeline:
     def __init__(self):
         print(f"Initializing VLM Pipeline pointing to {API_URL}...")
+    #     print("Loading YOLOv8 Auto-Cropper...")
+    #     self.yolo = YOLO("yolov8n.pt")
+        
+    # def _crop_to_person(self, img_array):
+    #     # Run extremely fast YOLO inference
+    #     results = self.yolo(img_array, verbose=False)
+        
+    #     # Look for the 'person' class (class 0 in COCO)
+    #     best_box = None
+    #     highest_conf = 0.0
+        
+    #     # pyrefly: ignore [bad-index, missing-attribute]
+    #     for box in results[0].boxes:
+    #         cls_id = int(box.cls[0].item())
+    #         conf = box.conf[0].item()
+    #         if cls_id == 0 and conf > highest_conf:
+    #             highest_conf = conf
+    #             best_box = box.xyxy[0].cpu().numpy()
+                
+    #     if best_box is not None:
+    #         # Add 5% padding so we don't cut off shoes or hats
+    #         h, w = img_array.shape[:2]
+    #         x1, y1, x2, y2 = [int(v) for v in best_box]
+            
+    #         pad_x = int((x2 - x1) * 0.05)
+    #         pad_y = int((y2 - y1) * 0.05)
+            
+    #         x1 = max(0, x1 - pad_x)
+    #         y1 = max(0, y1 - pad_y)
+    #         x2 = min(w, x2 + pad_x)
+    #         y2 = min(h, y2 + pad_y)
+            
+    #         print(f"Person detected! Cropping background (Conf: {highest_conf:.2f})")
+    #         return img_array[y1:y2, x1:x2]
+            
+    #     print("No person detected. Using original full image.")
+    #     return img_array
         
     def _encode_image_to_base64(self, img_array):
         # Convert BGR numpy array to base64 jpeg with 80% quality compression
@@ -42,8 +82,11 @@ class ClothingPipeline:
         elif isinstance(image_source, Image.Image):
             img = cv2.cvtColor(np.array(image_source), cv2.COLOR_RGB2BGR)
         else:
-            print("Unsupported image source type.")
+            print("Error: Unsupported image source type.")
             return {}
+            
+        # Step 1: Auto-Crop the person (removes background to save LLM computation)
+        # img = self._crop_to_person(img)
             
         # --- SPEED OPTIMIZATION ---
         # Resize image so the longest edge is max 1024px to prevent the LLM from choking on huge files

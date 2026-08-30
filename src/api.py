@@ -4,11 +4,11 @@ import numpy as np
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-try:
-    # pyrefly: ignore [missing-import]
-    from pipeline import ClothingPipeline
-except ModuleNotFoundError:
-    from pipeline import ClothingPipeline
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from pipeline import ClothingPipeline
 
 app = FastAPI(title="Clothing Detection API")
 
