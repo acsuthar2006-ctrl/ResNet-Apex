@@ -37,7 +37,7 @@ async def predict(image: UploadFile = File(...)):
     # Process the image in-memory
     results = pipeline.process_image(img_bgr)
     
-    return {"tallies": results}
+    return results
 
 # Serve the frontend directory statically at the root URL (/)
 import os
