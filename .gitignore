@@ -95,3 +95,6 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# gklean dotfile
+.gklean
