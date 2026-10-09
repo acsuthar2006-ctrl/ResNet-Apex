@@ -13,21 +13,25 @@ class VLMClient:
         
     def analyze_clothing(self, base64_img):
         prompt = (
-            "Analyze this image carefully. Identify ALL garments and clothing pieces present in the image. "
-            "If there is a person, identify what they are wearing. "
-            "If it is a flat-lay photo or clothes folded/lying around, identify those items exactly as they appear. "
-            "CRITICAL RULES: \n"
-            "1. DO NOT include body parts (e.g. face, hands, person).\n"
-            "2. DO NOT include accessories, props, phones, bags, or jewelry.\n"
-            "3. DO NOT include furniture, backgrounds, or any non-clothing items like books or any kind of stationries.\n"
-            "4. Count each distinct item carefully to get a highly accurate total count of clothes with their type.\n"
-            "5. Return ONLY a valid JSON dictionary where keys are descriptive clothing names (e.g., 'red flannel shirt') and values are counts (e.g., 2).\n"
-            "Do not include any other text, markdown blocks, or explanation outside the JSON."
+            "Analyze this image and identify all clothing pieces and garments.\n"
+            "CRITICAL INSTRUCTIONS:\n"
+            "- Identify ALL garments and clothing pieces present in the image.\n"
+            "- If there is a person, identify what they are wearing.\n"
+            "- If it is flat-lay or folded clothes, identify each garment accurately.\n"
+            "- DO NOT include body parts (e.g. face, hands, person).\n"
+            "- DO NOT include accessories, props, phones, bags, or jewelry.\n"
+            "- DO NOT include furniture, backgrounds, or non-clothing items.\n"
+            "- Return ONLY a single valid JSON dictionary where keys are descriptive clothing names (e.g., 'red flannel shirt') and values are counts (e.g., 2).\n"
+            "- No markdown, no commentary, no preamble."
         )
 
         payload = {
             "model": self.model_name,
             "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a direct vision classification engine. You must NEVER think, reason out loud, or use <think> tags. Output ONLY a valid JSON object starting immediately with '{'."
+                },
                 {
                     "role": "user",
                     "content": [
@@ -50,7 +54,9 @@ class VLMClient:
             print(content)
             print("-------------------------\n")
             
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+            # Remove any residual <think>...</think> tags if generated
+            clean_content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+            json_match = re.search(r'\{.*\}', clean_content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group(0))
             else:
