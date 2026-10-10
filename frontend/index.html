@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry AI Assistant</title>
+    <meta name="description" content="AI-powered clothing detector ChatBot">
+
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Material Symbols / Icons -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <link rel="stylesheet" href="style.css?v=5">
+</head>
+
+<body>
+    <!-- Dynamic background elements for premium feel -->
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-info">
+                <h1>Laundry AI Scanner</h1>
+                <p>AI-Powered Clothing Classifier</p>
+            </div>
+            <button class="settings-btn" aria-label="Settings">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- State 1: Upload Zone -->
+            <div id="upload-zone" class="upload-zone active">
+                <div class="upload-icon-wrapper">
+                    <span class="material-symbols-outlined upload-icon">photo_library</span>
+                </div>
+                <h2>Upload or Capture Garment</h2>
+                <p>Drag and drop an image, browse your device, or snap a photo directly with your camera.</p>
+
+                <div class="upload-actions">
+                    <label for="file-upload" class="upload-btn-main btn-browse" id="btn-browse-label">
+                        <span class="material-symbols-outlined">folder_open</span>
+                        <span>Browse Files</span>
+                    </label>
+                    <input type="file" id="file-upload" accept="image/jpeg, image/png, image/webp" hidden>
+
+                    <button type="button" class="upload-btn-main btn-camera" id="open-camera-btn">
+                        <span class="material-symbols-outlined">photo_camera</span>
+                        <span>Use Camera</span>
+                    </button>
+                    <!-- Fallback camera input for devices that trigger native camera through file input -->
+                    <input type="file" id="camera-fallback-input" accept="image/*" capture="environment" hidden>
+                </div>
+
+                <div class="upload-drop-hint">
+                    <span class="material-symbols-outlined">file_download</span>
+                    <span>or drop your image anywhere inside</span>
+                </div>
+            </div>
+
+            <!-- Camera Viewfinder Overlay / Modal -->
+            <div id="camera-modal" class="camera-modal hidden" aria-modal="true" role="dialog"
+                aria-labelledby="camera-title-text">
+                <div class="camera-modal-backdrop" id="camera-backdrop"></div>
+                <div class="camera-modal-content">
+                    <div class="camera-header">
+                        <div class="camera-title-badge">
+                            <span class="live-dot"></span>
+                            <span class="material-symbols-outlined">photo_camera</span>
+                            <span id="camera-title-text">Live Camera</span>
+                        </div>
+                        <button type="button" class="camera-close-btn" id="close-camera-btn" aria-label="Close camera">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+
+                    <div class="camera-viewport-wrapper">
+                        <!-- Live stream video element -->
+                        <video id="camera-video" playsinline autoplay muted></video>
+                        <!-- Canvas for snapshot freeze / processing -->
+                        <canvas id="camera-canvas" class="hidden"></canvas>
+
+                        <!-- Viewfinder Scanner Overlay -->
+                        <div class="viewfinder-overlay" id="viewfinder-overlay">
+                            <div class="scanner-bracket bracket-tl"></div>
+                            <div class="scanner-bracket bracket-tr"></div>
+                            <div class="scanner-bracket bracket-bl"></div>
+                            <div class="scanner-bracket bracket-br"></div>
+                            <div class="scanner-line"></div>
+                            <div class="viewfinder-instruction">Center garments in the frame</div>
+                        </div>
+
+                        <!-- Camera Error / Fallback Container -->
+                        <div id="camera-error-container" class="camera-error-container hidden">
+                            <span class="material-symbols-outlined error-icon">videocam_off</span>
+                            <h4>Camera Access Unavailable</h4>
+                            <p id="camera-error-message">Unable to access your device camera. Please check camera
+                                permissions or browse an image file instead.</p>
+                            <button type="button" class="action-btn btn-browse" id="fallback-capture-btn">
+                                <span class="material-symbols-outlined">add_a_photo</span>
+                                <span>Browse / Device Camera</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Control Bar -->
+                    <div class="camera-controls">
+                        <!-- Live streaming controls -->
+                        <div id="live-controls" class="camera-control-group">
+                            <button type="button" class="camera-tool-btn" id="flip-camera-btn" title="Switch Camera"
+                                aria-label="Switch Camera">
+                                <span class="material-symbols-outlined">flip_camera_android</span>
+                            </button>
+
+                            <button type="button" class="camera-shutter-btn" id="capture-btn" title="Take Photo"
+                                aria-label="Take Photo">
+                                <div class="shutter-circle-outer">
+                                    <div class="shutter-circle-inner"></div>
+                                </div>
+                            </button>
+
+                            <div class="camera-tool-spacer"></div>
+                        </div>
+
+                        <!-- Preview controls (after capturing photo) -->
+                        <div id="preview-controls" class="camera-control-group preview-controls-group hidden">
+                            <button type="button" class="action-btn btn-retake" id="retake-btn">
+                                <span class="material-symbols-outlined">restart_alt</span>
+                                <span>Retake</span>
+                            </button>
+                            <button type="button" class="action-btn btn-confirm" id="use-photo-btn">
+                                <span class="material-symbols-outlined">check_circle</span>
+                                <span>Use Photo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- State 2: Scanning / Results -->
+            <div id="results-zone" class="results-zone hidden">
+                <div class="image-panel">
+                    <div class="image-overlay-container" id="image-overlay-container">
+                        <div class="image-wrapper" id="image-wrapper">
+                            <img id="scanned-img" src="" alt="Scanned Image">
+                            <!-- Boxes injected here -->
+                        </div>
+                    </div>
+                    <div class="results-actions">
+                        <button id="reset-btn" class="reset-btn">
+                            <span class="material-symbols-outlined">folder_open</span> Scan Another File
+                        </button>
+                        <button id="camera-again-btn" class="reset-btn reset-camera-btn">
+                            <span class="material-symbols-outlined">photo_camera</span> Take Another Photo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-panel">
+                    <h3>Scan Results</h3>
+                    <div id="loading-spinner" class="loading-spinner hidden">
+                        <span class="material-symbols-outlined rotating">sync</span>
+                        <p>Analyzing fabric and extracting items...</p>
+                    </div>
+                    <div id="results-content" class="results-content">
+                        <!-- dynamic content goes here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js?v=7"></script>
+</body>
+
+</html>
