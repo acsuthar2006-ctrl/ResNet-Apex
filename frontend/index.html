@@ -13,7 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Material Symbols / Icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <link rel="stylesheet" href="style.css?v=5">
 </head>
@@ -46,7 +47,7 @@
                 </div>
                 <h2>Upload or Capture Garment</h2>
                 <p>Drag and drop an image, browse your device, or snap a photo directly with your camera.</p>
-                
+
                 <div class="upload-actions">
                     <label for="file-upload" class="upload-btn-main btn-browse" id="btn-browse-label">
                         <span class="material-symbols-outlined">folder_open</span>
@@ -69,7 +70,8 @@
             </div>
 
             <!-- Camera Viewfinder Overlay / Modal -->
-            <div id="camera-modal" class="camera-modal hidden" aria-modal="true" role="dialog" aria-labelledby="camera-title-text">
+            <div id="camera-modal" class="camera-modal hidden" aria-modal="true" role="dialog"
+                aria-labelledby="camera-title-text">
                 <div class="camera-modal-backdrop" id="camera-backdrop"></div>
                 <div class="camera-modal-content">
                     <div class="camera-header">
@@ -103,7 +105,8 @@
                         <div id="camera-error-container" class="camera-error-container hidden">
                             <span class="material-symbols-outlined error-icon">videocam_off</span>
                             <h4>Camera Access Unavailable</h4>
-                            <p id="camera-error-message">Unable to access your device camera. Please check camera permissions or browse an image file instead.</p>
+                            <p id="camera-error-message">Unable to access your device camera. Please check camera
+                                permissions or browse an image file instead.</p>
                             <button type="button" class="action-btn btn-browse" id="fallback-capture-btn">
                                 <span class="material-symbols-outlined">add_a_photo</span>
                                 <span>Browse / Device Camera</span>
@@ -115,16 +118,18 @@
                     <div class="camera-controls">
                         <!-- Live streaming controls -->
                         <div id="live-controls" class="camera-control-group">
-                            <button type="button" class="camera-tool-btn" id="flip-camera-btn" title="Switch Camera" aria-label="Switch Camera">
+                            <button type="button" class="camera-tool-btn" id="flip-camera-btn" title="Switch Camera"
+                                aria-label="Switch Camera">
                                 <span class="material-symbols-outlined">flip_camera_android</span>
                             </button>
-                            
-                            <button type="button" class="camera-shutter-btn" id="capture-btn" title="Take Photo" aria-label="Take Photo">
+
+                            <button type="button" class="camera-shutter-btn" id="capture-btn" title="Take Photo"
+                                aria-label="Take Photo">
                                 <div class="shutter-circle-outer">
                                     <div class="shutter-circle-inner"></div>
                                 </div>
                             </button>
-                            
+
                             <div class="camera-tool-spacer"></div>
                         </div>
 
@@ -161,7 +166,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="data-panel">
                     <h3>Scan Results</h3>
                     <div id="loading-spinner" class="loading-spinner hidden">

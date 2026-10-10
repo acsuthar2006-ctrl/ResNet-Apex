@@ -64,6 +64,8 @@ models/
 *.TFRecord
 *.png
 *.jpg
+*.jpeg
+*.webp
 data/
 datasets/
 

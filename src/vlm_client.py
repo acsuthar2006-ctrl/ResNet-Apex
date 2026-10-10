@@ -12,17 +12,46 @@ class VLMClient:
         print(f"Initializing VLM Client pointing to {self.api_url}...")
         
     def analyze_clothing(self, base64_img):
-        prompt = (
-            "Analyze this image and identify all clothing pieces and garments.\n"
-            "CRITICAL INSTRUCTIONS:\n"
-            "- Identify ALL garments and clothing pieces present in the image.\n"
-            "- If there is a person, identify what they are wearing.\n"
-            "- If it is flat-lay or folded clothes, identify each garment accurately.\n"
-            "- DO NOT include body parts (e.g. face, hands, person).\n"
-            "- DO NOT include accessories, props, phones, bags, or jewelry.\n"
-            "- DO NOT include furniture, backgrounds, or non-clothing items.\n"
-            "- Return ONLY a single valid JSON dictionary where keys are descriptive clothing names (e.g., 'red flannel shirt') and values are counts (e.g., 2).\n"
-            "- No markdown, no commentary, no preamble."
+        system_prompt = (
+            "You are an expert Vision AI and Textile Classification Engine specialized in laundry auditing, "
+            "wardrobe analysis, and garment recognition.\n"
+            "Your objective is to inspect the provided image with extreme visual precision and identify every "
+            "wearable clothing item, especially in challenging, folded, layered, or awkward arrangements.\n"
+            "You must output ONLY a valid JSON dictionary starting with '{' and ending with '}'. "
+            "Do not include any thought process, markdown code fences, commentary, or text outside the JSON object."
+        )
+
+        user_prompt = (
+            "Analyze this image and identify all wearable clothing items and garments present.\n\n"
+            "DETECTION GUIDELINES FOR AWKWARD & REAL-WORLD IMAGES:\n"
+            "1. FOLDED & STACKED GARMENTS:\n"
+            "   - Clothes are frequently folded into rectangles or squares. Look for hallmark structural clues:\n"
+            "     * Collared Shirts / Polo Shirts: Look for collars, neckbands, buttons, plackets, cuffs, or chest patches.\n"
+            "     * T-Shirts: Look for ribbed crewneck/V-neck collars, folded short/long sleeves, and soft knit fabric.\n"
+            "     * Trousers / Jeans / Pants: Look for waistbands, belt loops, fly zippers, back/side pockets with buttons, denim rivets, and folded trouser legs.\n"
+            "     * Sweaters / Hoodies / Jackets: Look for heavy knit textures, hoods, drawstrings, zippers, and ribbed cuffs/hems.\n"
+            "2. OVERLAPPING & UNDERLYING ITEMS:\n"
+            "   - When clothes are stacked or resting on top of one another, distinguish their fabric and color boundaries.\n"
+            "   - Crucial: If one garment is laid underneath another (e.g., a shirt partially covered by folded pants or another shirt), "
+            "you MUST detect and count the underlying garment too.\n"
+            "3. CRUMPLED, AWKWARD, OR ROTATED VIEWS:\n"
+            "   - Garments may be upside down, sideways, bunched up, or partially wrinkled. Identify each distinct garment by its unique fabric texture, seams, and color.\n"
+            "4. WORN ON A PERSON:\n"
+            "   - If a person is in the frame, identify their tops, bottoms, outerwear, and inner layers.\n\n"
+            "STRICT NEGATIVE EXCLUSIONS (NEVER COUNT THESE):\n"
+            "- BACKGROUND FABRICS: Bedsheets, blankets, quilts, duvet covers, mattress protectors, tablecloths, towels, curtains, and carpets/rugs are BACKGROUND SURFACES, NOT clothing—even if they have floral, striped, polka dot, or colorful patterns.\n"
+            "- NON-CLOTHING OBJECTS: Do not include bags, backpacks, shoes, belts, jewelry, watches, phones, hangers, floor tiles, or furniture.\n"
+            "- HUMAN BODY: Do not include the person, face, skin, or hands.\n\n"
+            "NAMING & OUTPUT FORMAT:\n"
+            "- Keys: Descriptive names formatted as '<color/pattern> <garment_type>' (e.g., 'beige collared polo shirt', 'blue denim button-down shirt', 'grey plaid formal trousers').\n"
+            "- Values: Integer count of that specific garment (e.g., 1, 2).\n\n"
+            "Example valid response:\n"
+            "{\n"
+            "  \"beige collared polo shirt\": 1,\n"
+            "  \"blue denim button-down shirt\": 1,\n"
+            "  \"grey plaid formal trousers\": 1\n"
+            "}\n\n"
+            "Return ONLY the JSON dictionary now:"
         )
 
         payload = {
@@ -30,12 +59,12 @@ class VLMClient:
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a direct vision classification engine. You must NEVER think, reason out loud, or use <think> tags. Output ONLY a valid JSON object starting immediately with '{'."
+                    "content": system_prompt
                 },
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": prompt},
+                        {"type": "text", "text": user_prompt},
                         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}}
                     ]
                 }
@@ -54,11 +83,30 @@ class VLMClient:
             print(content)
             print("-------------------------\n")
             
-            # Remove any residual <think>...</think> tags if generated
+            # 1. Remove any residual <think>...</think> tags if generated
             clean_content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+            
+            # 2. Strip markdown fences if present
+            clean_content = re.sub(r'^```(?:json)?\s*', '', clean_content, flags=re.MULTILINE)
+            clean_content = re.sub(r'\s*```$', '', clean_content, flags=re.MULTILINE).strip()
+            
+            # 3. Extract JSON object
             json_match = re.search(r'\{.*\}', clean_content, re.DOTALL)
             if json_match:
-                return json.loads(json_match.group(0))
+                json_str = json_match.group(0)
+                # Fix any trailing commas before closing braces/brackets
+                json_str = re.sub(r',\s*([\}\]])', r'\1', json_str)
+                raw_dict = json.loads(json_str)
+                
+                # Sanitize: ensure keys are clean strings and counts are integers
+                sanitized_dict = {}
+                for k, v in raw_dict.items():
+                    if isinstance(k, str) and k.strip():
+                        try:
+                            sanitized_dict[k.strip().lower()] = int(v) if int(v) > 0 else 1
+                        except (ValueError, TypeError):
+                            sanitized_dict[k.strip().lower()] = 1
+                return sanitized_dict
             else:
                 print("Error: Could not find valid JSON block.")
                 return {}
